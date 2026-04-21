@@ -1,0 +1,204 @@
+{
+  "info": {
+    "name": "Grid07 API",
+    "description": "Postman collection for Grid07 Spring Boot assignment",
+    "_postman_id": "grid07-collection-v1",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Setup",
+      "item": [
+        {
+          "name": "Create User",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/users", "host": ["{{baseUrl}}"], "path": ["api", "users"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"rahul_dev\",\n  \"isPremium\": false\n}"
+            }
+          }
+        },
+        {
+          "name": "Create Premium User",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/users", "host": ["{{baseUrl}}"], "path": ["api", "users"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"priya_premium\",\n  \"isPremium\": true\n}"
+            }
+          }
+        },
+        {
+          "name": "Get All Users",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/users", "host": ["{{baseUrl}}"], "path": ["api", "users"] }
+          }
+        },
+        {
+          "name": "Create Bot",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/bots", "host": ["{{baseUrl}}"], "path": ["api", "bots"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"SupportBot\",\n  \"personaDescription\": \"A helpful bot that replies to user posts\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get All Bots",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/bots", "host": ["{{baseUrl}}"], "path": ["api", "bots"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Phase 1 - Core API",
+      "item": [
+        {
+          "name": "Create Post (by User)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/posts", "host": ["{{baseUrl}}"], "path": ["api", "posts"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"authorUserId\": 1,\n  \"content\": \"Just deployed my first Spring Boot app!\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Create Post (by Bot)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/posts", "host": ["{{baseUrl}}"], "path": ["api", "posts"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"authorBotId\": 1,\n  \"content\": \"I am a bot and I just posted something.\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get All Posts",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/posts", "host": ["{{baseUrl}}"], "path": ["api", "posts"] }
+          }
+        },
+        {
+          "name": "Human Comment on Post",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/posts/1/comments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "posts", "1", "comments"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"authorUserId\": 1,\n  \"content\": \"Great post!\",\n  \"depthLevel\": 0\n}"
+            }
+          }
+        },
+        {
+          "name": "Like a Post",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/posts/1/like",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "posts", "1", "like"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": 1\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Phase 2 - Redis Guardrails",
+      "item": [
+        {
+          "name": "Bot Comment (should succeed)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/posts/1/comments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "posts", "1", "comments"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"authorBotId\": 1,\n  \"content\": \"Hey, this bot just replied!\",\n  \"depthLevel\": 0\n}"
+            }
+          }
+        },
+        {
+          "name": "Bot Comment - depth too deep (should 429)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/posts/1/comments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "posts", "1", "comments"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"authorBotId\": 1,\n  \"content\": \"This comment is too deep in the thread.\",\n  \"depthLevel\": 21\n}"
+            }
+          }
+        },
+        {
+          "name": "Bot Comment - cooldown test (send twice fast, 2nd should 429)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/posts/1/comments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "posts", "1", "comments"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"authorBotId\": 1,\n  \"content\": \"Bot spamming the same user again.\",\n  \"depthLevel\": 0\n}"
+            }
+          }
+        },
+        {
+          "name": "Check Post Virality + Bot Count",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/posts/1/virality",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "posts", "1", "virality"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
